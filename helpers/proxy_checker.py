@@ -81,12 +81,13 @@ def process_proxy(ip, port):
         proxy_asn = pxy.get("asn") or "Unknown"
         proxy_latitude = pxy.get("latitude") or "Unknown"
         proxy_longitude = pxy.get("longitude") or "Unknown"
+        proxy_colo = pxy.get("colo") or "Unknown"
         proxy_country_name, proxy_country_flag = get_country_info(proxy_country_code)
         result_message = f"Cloudflare Proxy Alive {ip}:{port}"
         print(result_message)
-        return True, result_message, proxy_country_code, proxy_asn, proxy_country_name, proxy_country_flag, pxy_protocol, org_name, pxy_connection_time, proxy_latitude, proxy_longitude
+        return True, result_message, proxy_country_code, proxy_asn, proxy_country_name, proxy_country_flag, pxy_protocol, org_name, pxy_connection_time, proxy_latitude, proxy_longitude, proxy_colo
     else:
         dead_message = f"Cloudflare Proxy Dead: {ip}:{port}"
         print(dead_message)
-        return False, dead_message, "Unknown", "Unknown", "Unknown", None, "Unknown", "Unknown", 0, "Unknown", "Unknown"
+        return False, dead_message, "Unknown", "Unknown", "Unknown", None, "Unknown", "Unknown", 0, "Unknown", "Unknown", "Unknown"
 

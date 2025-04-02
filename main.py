@@ -30,7 +30,7 @@ async def check_proxy_url_endpoint(
     try:
         port_number = int(port)
         result = process_proxy(ip, port_number)
-        proxyip, message, country_code, asn, country_name, country_flag, http_protocol, org_name, connection_time, latitude, longitude = result
+        proxyip, message, country_code, asn, country_name, country_flag, http_protocol, org_name, connection_time, latitude, longitude, colo = result
 
         if proxyip:
             response_data = {
@@ -42,11 +42,12 @@ async def check_proxy_url_endpoint(
                 "countryName": country_name,
                 "countryFlag": country_flag,
                 "asn": asn,
-                "message": message,
+                "colo": colo,
                 "httpProtocol": http_protocol,
                 "delay": f"{round(connection_time)} ms",
                 "latitude": latitude,
-                "longitude": longitude
+                "longitude": longitude,
+                "message": message
             }
         else:
             response_data = {

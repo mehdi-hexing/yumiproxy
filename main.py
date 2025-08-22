@@ -13,7 +13,7 @@ async def check_proxy_url_endpoint(
             status_code=400,
             content={
                 "error": "Parameter 'proxyip' must be provided in the URL.",
-                "example": "/api/v1/check?proxyip=1.1.1.1:443 or /api/v1/check?proxyip=8.8.8.8"
+                "example": "/api/v1/check?proxyip=1.2.3.4:443 or /api/v1/check?proxyip=4.3.2.1"
             },
         )
 

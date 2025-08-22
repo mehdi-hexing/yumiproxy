@@ -1,38 +1,45 @@
-from fastapi import FastAPI, Request, Query, HTTPException
-from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi import FastAPI, Query
+from fastapi.responses import JSONResponse
 from helpers.proxy_checker import process_proxy
-from jinja2 import Environment, FileSystemLoader
 
 app = FastAPI()
 
-env = Environment(loader=FileSystemLoader("templates"))
-
-@app.get("/", response_class=HTMLResponse)
-async def homepage(request: Request):
-    template = env.get_template("index.html")
-    return template.render()
-
-@app.get("/api/v1")
+@app.get("/api/v1/check")
 async def check_proxy_url_endpoint(
-    request: Request,
-    ip: str = Query(None, description="IP address proxy"),
-    port: str = Query(None, description="Port proxy")
+    proxyip: str = Query(None, description="Proxy in format IP:PORT")
 ):
-    if ip is None or port is None:
+    if proxyip is None:
         return JSONResponse(
             status_code=400,
             content={
-                "error": "Parameter 'ip' dan 'port' harus diberikan dalam URL.",
-                "massage":"Format harus /api/v1?ip=192.168.1.1&port=80"
+                "error": "Parameter 'proxyip' must be provided in the URL.",
+                "example": "/api/v1/check?proxyip=1.2.3.4:123"
             },
+        )
+
+    try:
+        parts = proxyip.split(':')
+        ip = parts[0]
+        port = parts[1] if len(parts) > 1 else "80"
+        
+        if not ip:
+            raise ValueError("IP address cannot be empty.")
+
+    except (ValueError, IndexError):
+        return JSONResponse(
+            status_code=400,
+            content={
+                "error": "Invalid 'proxyip' format.",
+                "expected_format": "IP:PORT"
+            }
         )
 
     try:
         port_number = int(port)
         result = process_proxy(ip, port_number)
-        proxyip, message, country_code, asn, country_name, country_flag, http_protocol, org_name, connection_time, latitude, longitude, colo = result
+        is_alive, message, country_code, asn, country_name, country_flag, http_protocol, org_name, connection_time, latitude, longitude, colo = result
 
-        if proxyip:
+        if is_alive:
             response_data = {
                 "ip": ip,
                 "port": port_number,
@@ -61,8 +68,8 @@ async def check_proxy_url_endpoint(
         return response_data
 
     except ValueError:
-        return JSONResponse(status_code=400, content={"error": "Port harus berupa angka."})
+        return JSONResponse(status_code=400, content={"error": "Port must be a number."})
     except Exception as e:
-        error_message = f"Terjadi kesalahan server saat memproses proxy {ip}:{port}: {e}"
+        error_message = f"An internal server error occurred while processing the proxy {ip}:{port}: {e}"
         print(error_message)
         return JSONResponse(status_code=500, content={"error": error_message})

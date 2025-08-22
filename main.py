@@ -20,7 +20,7 @@ async def check_proxy_url_endpoint(
     try:
         parts = proxyip.split(':')
         ip = parts[0]
-        port = parts[1] if len(parts) > 1 else "80"
+        port = parts[1] if len(parts) > 1 else "443"
         
         if not ip:
             raise ValueError("IP address cannot be empty.")

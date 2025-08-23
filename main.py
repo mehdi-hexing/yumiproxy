@@ -135,7 +135,7 @@ async def check_proxy_url_endpoint(
                 "asn": asn,
                 "colo": colo,
                 "httpProtocol": http_protocol,
-                "ping": f"{round(connection_time)} ms",
+                "ping": f"{round(connection_time)}",
                 "latitude": latitude,
                 "longitude": longitude,
                 "message": message

@@ -4,12 +4,23 @@ import json
 import re
 import pycountry
 import time
+import httpx
 from fastapi import FastAPI, Query
 from fastapi.responses import JSONResponse
 
 IP_RESOLVER = "speed.cloudflare.com"
 PATH_RESOLVER = "/meta"
 TIMEOUT = 5
+
+def get_hosting_provider(ip):
+    try:
+        with httpx.Client() as client:
+            response = client.get(f"http://ip-api.com/json/{ip}?fields=as")
+            response.raise_for_status()
+            data = response.json()
+            return data.get("as")
+    except (httpx.RequestError, json.JSONDecodeError):
+        return None
 
 def check(host, path, proxy):
     start_time = time.time()
@@ -73,7 +84,10 @@ def process_proxy(ip, port):
     pxy, pxy_protocol, pxy_connection_time = check(IP_RESOLVER, PATH_RESOLVER, proxy_data)
 
     if ori and not ori.get("error") and pxy and not pxy.get("error") and ori.get("clientIp") != pxy.get("clientIp"):
-        org_name = clean_org_name(pxy.get("asOrganization"))
+        final_org_name = get_hosting_provider(ip)
+        if not final_org_name:
+            final_org_name = clean_org_name(pxy.get("asOrganization"))
+
         proxy_country_code = pxy.get("country") or "Unknown"
         proxy_asn = pxy.get("asn") or "Unknown"
         proxy_latitude = pxy.get("latitude") or "Unknown"
@@ -81,7 +95,7 @@ def process_proxy(ip, port):
         proxy_colo = pxy.get("colo") or "Unknown"
         proxy_country_name, proxy_country_flag = get_country_info(proxy_country_code)
         result_message = f"ProxyIP is Alive {ip}:{port}"
-        return True, result_message, proxy_country_code, proxy_asn, proxy_country_name, proxy_country_flag, pxy_protocol, org_name, pxy_connection_time, proxy_latitude, proxy_longitude, proxy_colo
+        return True, result_message, proxy_country_code, proxy_asn, proxy_country_name, proxy_country_flag, pxy_protocol, final_org_name, pxy_connection_time, proxy_latitude, proxy_longitude, proxy_colo
     else:
         dead_message = f"ProxyIP is Dead: {ip}:{port}"
         return False, dead_message, "Unknown", "Unknown", "Unknown", None, "Unknown", "Unknown", 0, "Unknown", "Unknown", "Unknown"

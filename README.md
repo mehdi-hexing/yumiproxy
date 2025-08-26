@@ -12,7 +12,7 @@ You can deploy your own instance of this proxy checker to Vercel in a few simple
 
 2.  **Fork the Repository**:
     * Go to the [GitHub repository](https://github.com/mehdi-hexing/proxyip-checker-vercel-api) and click the "Fork" button in the top-right corner. This will create a copy of the project under your own GitHub account.
-
+    * if you don't have github account, you can use step 3.
 3.  **Deploy**:
     * Once your accounts are ready and you have forked the repository, click the "Deploy with Vercel" button below. Vercel will automatically clone your forked repository and deploy the application.
 
